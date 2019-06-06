@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Record</title>
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div id="app" v-cloak>
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <span class="navbar-text glyphicon glyphicon-home"
+                      v-show="showType=='books'"></span>
+                <span class="navbar-text glyphicon glyphicon-trash"
+                      v-show="showType=='trash'"></span>
+                <span class="navbar-text glyphicon glyphicon-list-alt"
+                      v-show="showType=='finishedBooks'"></span>
+                <form class="navbar-form navbar-left" role="search">
+                    <input type="text" class="form-control" placeholder="Search" v-model="search">
+                </form>
+                <span class="navbar-right navbar-text glyphicon glyphicon-plus"
+                      data-toggle="modal" data-target="#addBookModel"></span>
+                <span class="navbar-right navbar-text glyphicon glyphicon-list-alt"
+                      @click="showType='finishedBooks'"></span>
+                <span class="navbar-right navbar-text glyphicon glyphicon-trash"
+                      @click="showType='trash'"></span>
+                <span class="navbar-right navbar-text glyphicon glyphicon-home"
+                      @click="showType='books'"></span>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <div class="white-box">
+                <h2 class="header-title"> Projects </h2>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Book Name</th>
+                                <th>Author</th>
+                                <th>Start Date</th>
+                                <th>Deadline Date</th>
+                                <th>Progress</th>
+                                <th>Page</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(book, i) in showBooks"
+                                @click="selectedBook=book;selectedBookIndex=i"
+                                :data-toggle="showType=='books'?'modal':''"
+                                :data-target="showType=='books'?'#bookDetailModel':''">
+                                <td>{{i+1}}</td>
+                                <td>{{book.name}}</td>
+                                <td>{{book.author}}</td>
+                                <td>{{book.startDate}}</td>
+                                <td>{{book.deadlineDate}}</td>
+                                <td class="progress-td">
+                                    <div class="progress my-progress">
+                                        <div v-for="(rate, j) in book.progress"
+                                             :title="rate + ' ' + (rate * 100 / book.totalPages).toFixed(2) + '%'"
+                                             :class="['progress-bar', colorClass[(i + j) % 5]]"
+                                             :style="{width: rate * 100 / book.totalPages + '%'}">
+
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{book.finishedPages}}/{{book.totalPages}}</td>
+                                <td>
+                                    <button type="button" class="close" @click.stop="deleteBook(i)">&times;</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="addBookModel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Book Info</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label>Book</label>
+                                <input placeholder="Book Name" class="form-control" v-model="bookName">
+                            </div>
+                            <div class="form-group">
+                                <label>Author</label>
+                                <input placeholder="Book Author" class="form-control" v-model="bookAuthor">
+                            </div>
+                            <div class="form-group">
+                                <label>Page</label>
+                                <input placeholder="Page Numbers" class="form-control" v-model.number="bookPages">
+                            </div>
+                            <div class="form-group">
+                                <label>Deadline</label>
+                                <input placeholder="eg: 2019/1/1" class="form-control" v-model="deadline">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" @click="add()">提交</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="clear()">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="bookDetailModel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">{{selectedBook.name}}</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label>今日已读到</label>
+                                <input placeholder="eg: 1" class="form-control" v-model.number="todayFinish">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" @click="addProgress()">提交</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" @click="todayFinish=''">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="node_modules/jquery/dist/jquery.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="node_modules/vue/dist/vue.js"></script>
+    <script src="js/index.js"></script>
+</body>
+</html>

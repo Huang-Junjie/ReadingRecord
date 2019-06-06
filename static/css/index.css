@@ -1,0 +1,49 @@
+[v-cloak] {
+    display: none;
+}
+
+.white-box {
+    background: #FFF;
+    padding: 20px;
+    float: left;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+body {
+    background: #ECECED;
+}
+
+.header-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 19px;
+    margin-bottom: 20px;
+    margin-top: 0;
+    text-transform: uppercase;
+}
+
+.white-box table th,
+.white-box table td {
+    font-size: 16px;
+}
+
+.white-box tr {
+    cursor: pointer;
+}
+
+.progress-td {
+    width: 40%;
+}
+
+.my-progress {
+    margin: 4px 0;
+    height: 16px;
+    vertical-align: middle;
+}
+
+.navbar .glyphicon {
+    line-height: 20px;
+    margin: 15px;
+    cursor: pointer;
+}
