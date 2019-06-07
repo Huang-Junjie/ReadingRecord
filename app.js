@@ -12,27 +12,33 @@ const bookList = db.get('bookList');
 
 app.use(bodyParser());
 router.get('/getList', async (ctx) => {
-    let list = await bookList.find();
-    if (list) {
-        ctx.status = 200;
-        ctx.body = list;
-    }
+    let readingList = await bookList.find({isFinished: false, inTrash: false});
+    let trashList = await bookList.find({inTrash: true});
+    let finishedList = await bookList.find({isFinished: true, inTrash: false});
+    ctx.status = 200;
+    ctx.body = {readingList, trashList, finishedList};
 });
 
 
 router.post('/addBook', async (ctx) => {
     let data = await bookList.insert(ctx.request.body);
-    if (data) {
-        ctx.status = 200;
-        ctx.body = data;
-    }
+    ctx.status = 200;
+    ctx.body = data;
 });
 
 
 
+router.get('/deleteBook', async (ctx) => {
+    let data = await bookList.remove({_id: ctx.query.id});
+    ctx.status = 200;
+    ctx.body = data;
+});
 
-
-
+router.get('/trashBook', async (ctx) => {
+    let data = await bookList.update({_id: ctx.query.id}, {$set: {inTrash: true}});
+    ctx.status = 200;
+    ctx.body = data;
+});
 
 
 

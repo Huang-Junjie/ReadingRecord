@@ -16,14 +16,17 @@ var vm = new Vue({
         ],
 
         search: "",
+        showType: "books",
+
         bookName: "",
         bookAuthor: "",
         bookPages: "",
         deadline: "",
-        showType: "books",
+
+        todayFinish: "",
+
         selectedBook: {},
-        selectedBookIndex: 0,
-        todayFinish: ""
+        selectedBookIndex: 0
     },
 
     mounted() {
@@ -32,12 +35,18 @@ var vm = new Vue({
             url: "/getList",
             success: (data, textStatus, jqXHR) => {
                 console.log(data, textStatus, jqXHR);
-                if (jqXHR.status == 200) this.books = data;
+                if (jqXHR.status == 200) {
+                    this.books = data.readingList;
+                    this.trash = data.trashList;
+                    this.finishedBooks = data.finishedList;
+                }
             },
             error: (jqXHR, textStatus, errorThrown) => {
                 console.log(jqXHR, textStatus, errorThrown);
             },
         });
+
+       
     },
 
     methods: {
@@ -59,7 +68,8 @@ var vm = new Vue({
                     progress: [],
                     totalPages: this.bookPages,
                     finishedPages: 0,
-                    inTrash: false
+                    inTrash: false,
+                    isFinished: false
                 };
 
                 $.ajax({
@@ -83,11 +93,37 @@ var vm = new Vue({
 
         deleteBook(i) {
             if (this.showType == 'trash') {
-                this.trash.splice(i, 1);
+                $.ajax({
+                    type: "GET",
+                    url: "/deleteBook/?id=" + this.showBooks[i]._id,
+                    success: (data, textStatus, jqXHR) => {
+                        console.log(data, textStatus, jqXHR);
+                        if (jqXHR.status == 200) {
+                            let index = this[this.showType].findIndex(book => book._id == this.showBooks[i]._id);
+                            this[this.showType].splice(index, 1);
+                        }
+                    },
+                    error: (jqXHR, textStatus, errorThrown) => {
+                        console.log(jqXHR, textStatus, errorThrown);
+                    },
+                });
             }
             else {
-                this.trash.push(this[this.showType][i]);
-                this[this.showType].splice(i, 1);
+                $.ajax({
+                    type: "GET",
+                    url: "/trashBook/?id=" + this.showBooks[i]._id,
+                    success: (data, textStatus, jqXHR) => {
+                        console.log(data, textStatus, jqXHR);
+                        if (jqXHR.status == 200) {
+                            this.trash.push(this.showBooks[i]);
+                            let index = this[this.showType].findIndex(book => book._id == this.showBooks[i]._id);
+                            this[this.showType].splice(index, 1);
+                        }
+                    },
+                    error: (jqXHR, textStatus, errorThrown) => {
+                        console.log(jqXHR, textStatus, errorThrown);
+                    },
+                });
             }
         },
 
