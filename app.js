@@ -1,17 +1,32 @@
 const Koa = require('koa');
 var Router = require('koa-router');
+var bodyParser = require('koa-bodyparser');
 
 const app = new Koa();
 var router = new Router();
 
+const db = require('monk')('localhost/bookdb');
+const bookList = db.get('bookList');
 
-router.get('/a', (ctx, next) => {
-    // ctx.router available
 
+
+app.use(bodyParser());
+router.get('/getList', async (ctx) => {
+    let list = await bookList.find();
+    if (list) {
+        ctx.status = 200;
+        ctx.body = list;
+    }
 });
 
 
-
+router.post('/addBook', async (ctx) => {
+    let data = await bookList.insert(ctx.request.body);
+    if (data) {
+        ctx.status = 200;
+        ctx.body = data;
+    }
+});
 
 
 
