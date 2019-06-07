@@ -66,7 +66,7 @@ var vm = new Vue({
                     startDate: now.getFullYear() + '/' + (now.getMonth() + 1) + '/' + now.getDate(),
                     deadlineDate: this.deadline,
                     progress: [],
-                    totalPages: this.bookPages,
+                    totalPages: parseInt(this.bookPages),
                     finishedPages: 0,
                     inTrash: false,
                     isFinished: false
@@ -128,19 +128,33 @@ var vm = new Vue({
         },
 
         addProgress() {
-            if (this.todayFinish != "" &&
-                this.todayFinish > this.selectedBook.finishedPages &&
-                this.todayFinish <= this.selectedBook.totalPages) {
-                this.selectedBook.progress.push(this.todayFinish-this.selectedBook.finishedPages);
-                this.selectedBook.finishedPages = this.todayFinish;
-            }
-            this.todayFinish = "";
-            if (this.selectedBook.finishedPages == this.selectedBook.totalPages) {
-                this.finishedBooks.push(this.books[this.selectedBookIndex]);
-                this.books.splice(this.selectedBookIndex, 1);
+            if (this.todayFinish != "") {
+                $.ajax({
+                    type: "GET",
+                    url: "/addProgress/?id=" + this.selectedBook._id + "&page=" + this.todayFinish,
+                    success: (data, textStatus, jqXHR) => {
+                        console.log(data, textStatus, jqXHR);
+                        if (jqXHR.status == 200) {
+                            this.todayFinish = parseInt(this.todayFinish);
+                            this.selectedBook.progress.push(this.todayFinish-this.selectedBook.finishedPages);
+                            this.selectedBook.finishedPages = this.todayFinish;
+                            if (this.selectedBook.finishedPages == this.selectedBook.totalPages) {
+                                this.finishedBooks.push(this.selectedBook);
+                                let index = this.books.findIndex(book => book._id == this.showBooks[this.selectedBookIndex]._id);
+                                this.books.splice(index, 1);
+                            }
+                        }
+                        this.todayFinish = "";
+                    },
+                    error: (jqXHR, textStatus, errorThrown) => {
+                        console.log(jqXHR, textStatus, errorThrown);
+                        this.todayFinish = "";
+                    },
+                });
             }
         }
     },
+
     computed: {
         showBooks: function () {
             _this = this;

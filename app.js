@@ -41,6 +41,22 @@ router.get('/trashBook', async (ctx) => {
 });
 
 
+router.get('/addProgress', async (ctx) => {
+    let data1 = await bookList.findOne({_id: ctx.query.id});
+    let todayFinish = parseInt(ctx.query.page);
+    if (todayFinish > data1.finishedPages &&
+        todayFinish <= data1.totalPages) 
+    {
+        let data = await bookList.update({_id: ctx.query.id},
+                     {$push: {progress: todayFinish - data1.finishedPages}, 
+                      $set: {finishedPages: todayFinish, 
+                             isFinished: todayFinish == data1.totalPages
+                            }
+                     });
+        ctx.status = 200;
+        ctx.body = data;
+    }
+});
 
 
 
